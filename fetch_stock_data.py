@@ -3,7 +3,7 @@ import psycopg2
 
 def fetch_and_store_stock_data(stock_symbol):
     # Connect to PostgreSQL
-    conn = psycopg2.connect(database="stockDB", user="postgres", password="your_password", host="localhost", port="5432")
+    conn = psycopg2.connect(database="stockdb", user="postgres", password="Harshal@1811", host="localhost", port="5432")
     cur = conn.cursor()
 
     # Fetch stock data (Last 1 day, 1-minute intervals)
