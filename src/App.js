@@ -7,8 +7,12 @@ function App() {
   const [data, setData] = useState(null);
 
   const fetchStock = async (symbol) => {
-    const response = await axios.get(`https://your-api.onrender.com/fetch-stock/${symbol}`);
-    setData(response.data);
+    try {
+      const response = await axios.get(`https://stock-prediction-api-zlvm.onrender.com/fetch-stock/${symbol}`);
+      setData(response.data);
+    } catch (error) {
+      console.error("Error fetching stock data:", error);
+    }
   };
 
   return (
