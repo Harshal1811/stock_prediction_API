@@ -1,34 +1,26 @@
-from flask import Flask, request, jsonify
-import joblib
+import os
 import psycopg2
-from flask_cors import CORS
+from flask import Flask, jsonify
 
 app = Flask(__name__)
-CORS(app)
 
-# PostgreSQL Connection
-conn = psycopg2.connect(database="stockDB", user="postgres", password="your_password", host="localhost", port="5432")
-cur = conn.cursor()
+# Get DATABASE_URL from Render environment variables
+DATABASE_URL = os.getenv("postgres://avnadmin:AVNS_8YG9c0FKAZM8tVLbiS4@stockdb-harshalmodi-first-project.g.aivencloud.com:20392/defaultdb?sslmode=require")
 
-@app.route("/predict", methods=["POST"])
-def predict():
-    data = request.get_json()
-    stock_symbol = data["stock_symbol"]
+@app.route("/")
+def home():
+    return jsonify({"message": "Flask API is running successfully!"})
 
-    model = joblib.load(f"{stock_symbol}_model.pkl")
-    prediction = model.predict([[365]])  # Predict 1 year ahead
-
-    return jsonify({"stock_symbol": stock_symbol, "predicted_price": prediction[0]})
-
-@app.route("/live", methods=["POST"])
-def live_stock():
-    data = request.get_json()
-    stock_symbol = data["stock_symbol"]
-
-    cur.execute("SELECT close_price FROM stock_prices WHERE stock_symbol = %s ORDER BY timestamp DESC LIMIT 1", (stock_symbol,))
-    live_price = cur.fetchone()[0]
-
-    return jsonify({"stock_symbol": stock_symbol, "live_price": live_price})
+@app.route("/test-db")
+def test_db():
+    try:
+        conn = psycopg2.connect(DATABASE_URL)
+        cur = conn.cursor()
+        cur.execute("SELECT NOW();")
+        result = cur.fetchone()
+        return jsonify({"message": "Database connected!", "timestamp": result[0]})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
